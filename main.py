@@ -40,13 +40,19 @@ if file_upload:
     ##leitura dos dados
     df = pd.read_csv(file_upload)
     df["Data"] = pd.to_datetime(df["Data"], format = "%d/%m/%Y").dt.date
-    
-    ##formatacao da coluna valor e exibicaod de dados
+
+    ##################
+    ###DadosBrutos####
+    ##################
+
     exp1 = st.expander("Dados Brutos")
     columns_fmt = {"Valor":st.column_config.NumberColumn("valor", format="R$ %f")}
     exp1.dataframe(df, hide_index=True, column_config=columns_fmt)
 
-    ##Visão Instituição
+    ###################
+    ###Instiruições####
+    ###################
+
     exp2 = st.expander("Instituições")
     df_instiuicao = df.pivot_table(index="Data", columns="Instituição", values= "Valor")
 
@@ -61,10 +67,14 @@ if file_upload:
     with tb_share:
         
         date = st.selectbox("Filtro Data", options=df_instiuicao.index)
-        
-        ## obtem ultima data de dados
+
+        ###Grafico###
+        ## obtem ultima data de dados##
         st.bar_chart(df_instiuicao.loc[date])
 
+    #########################
+    ###estatiticas gerais###
+    ########################
 
     exp3 = st.expander("Estátisticas Gerais")
 
