@@ -1,6 +1,28 @@
+# %%
+import requests
 import streamlit as st
 import pandas as pd
 
+def get_selic():
+    url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados"
+
+    params = {
+        "formato": "json",
+        "dataInicial": "01/01/2020",
+        "dataFinal": "31/12/2025"
+    }
+
+    resp = requests.get(url, params=params, timeout=30)
+    resp.raise_for_status()
+
+    df = pd.DataFrame(resp.json())
+
+    df["data"] = pd.to_datetime(df["data"], dayfirst=True).dt.date
+    df["valor"] = pd.to_numeric(df["valor"])
+
+    return df
+
+## funcao estatiticas do dado brutos ##
 def calc_general_stats(df):
 
     df_data = df.groupby(by = "Data")[["Valor"]].sum()
@@ -20,8 +42,11 @@ def calc_general_stats(df):
     df_data = df_data.drop("lag_1", axis=1)
     return df_data
 
+
+## alteracao do nick name da pagina ##
 st.set_page_config(page_title="finanças", page_icon="💰")
 
+## texto ##
 st.markdown("""
 # Boas vindas!
 
@@ -54,6 +79,7 @@ if file_upload:
     ###################
 
     exp2 = st.expander("Instituições")
+
     df_instiuicao = df.pivot_table(index="Data", columns="Instituição", values= "Valor")
 
     tab_data, tab_history, tb_share = exp2.tabs(["Dados", "Historicos", "Distribuição"])
@@ -61,11 +87,13 @@ if file_upload:
     with tab_data:
         st.dataframe(df_instiuicao)
 
+    ##grafico em linha ##
     with tab_history:
         st.line_chart(df_instiuicao)
 
     with tb_share:
-        
+
+        ## filtro por data ##
         date = st.selectbox("Filtro Data", options=df_instiuicao.index)
 
         ###Grafico###
@@ -80,6 +108,7 @@ if file_upload:
 
     df_stats = calc_general_stats(df)
 
+    ## Calma, nao se assusta, Formatacao dos valores das estatiticas
     columns_config = {
         "Valor": st.column_config.NumberColumn("Valor", format="R$ %.2f"),
         "Diferença Mensal Abs.": st.column_config.NumberColumn("Diferença Mensal Abs.", format="R$ %.2f"),
@@ -95,11 +124,13 @@ if file_upload:
         "Evolução 24M  Rel.": st.column_config.NumberColumn("Evolução 24M  Rel.", format="percent"),
     }
 
+    ##abas, dentro do expander##
     tab_stats, tab_abs, tab_rel = exp3.tabs(tabs=["Dados", "Historico de Evolução", "Crescimento Relativo"])
 
     with tab_stats:
         st.dataframe(df_stats, column_config= columns_config)
 
+    ##grafico em linha##
     with tab_abs:
         abs_cols = [ "Diferença Mensal Abs.",
         "Média 6M Diferença Mensal Abs.",
@@ -107,6 +138,7 @@ if file_upload:
         "Média 24M Difereça Mensal Abs.",]
         st.line_chart(df_stats[abs_cols])
 
+    ## grafico em linha ##
     with tab_rel:
         rel_cols = [ 
             "Diferença Mensal Rel.",
@@ -116,31 +148,65 @@ if file_upload:
         ]
         st.line_chart(df_stats[rel_cols])
 
+    ############
+    ###Metas####
+    ############
+
     with st.expander("Metas"):
 
+        ##colunas##
         col1, col2 = st.columns(2)
 
+        ##Inico Meta e Salario liquido
         data_inicio_meta = col1.date_input("Inico da Meta", max_value=df_stats.index.max())
         data_filtrada = df_stats.index[df_stats.index <= data_inicio_meta][-1]
         salario_liq = col2.number_input("Sálario Liquido", min_value=0., format = "%.2f")
 
+        ##Salario Bruto e Custos Fixos
         salario_bruto =col1.number_input("Sálario Bruto", min_value=0., format = "%.2f")
         custo_fixo = col2.number_input("Custo Fixos", min_value=0., format = "%.2f")
 
+        ##patrimcio inicio meta
         valor_inicio = df_stats.loc[data_filtrada]["Valor"]
         col1.markdown(f"**Patrimonio no ínicio da Meta**: R$ {valor_inicio : .2f}")
 
+
+        selic_gov_df = get_selic()
+
+        filter_selic_date = selic_gov_df["data"] <= data_inicio_meta
+
+        selic_default = selic_gov_df.loc[filter_selic_date, "valor"].iloc[-1]
+
+        selic = st.number_input(
+            "Selic",
+            min_value=0.0,
+            value=float(selic_default),
+            format="%.2f"
+        )
+
+        selic_ano = selic / 100
+        selic_mes = (selic_ano + 1) ** (1/12) - 1
+
+        redimento_ano = valor_inicio * selic_ano
+        redimento_mes = valor_inicio * selic_mes
+                                                                                                                                                                                     
+        ##coluna pontecial, mas resete de coluna
         col1_pot, col2_pot = st.columns(2)
 
-        mensal = salario_liq - custo_fixo
-        anual = mensal * 12
+        ##conta arrrencadacao mensal e anual
+        mensal = salario_liq - custo_fixo + redimento_mes
+        anual = 2 * (salario_liq -custo_fixo) + redimento_ano
 
+        ## contanier + Input do valor
         with col1_pot.container(border=True):
-            st.markdown(f"**Pontencial Arrecadação Mês**:\n\n R$ {mensal : .2f}")
+            st.markdown(f"""**Pontencial Arrecadação Mês**:\n\n R$ {mensal : .2f}""",
+                        help = f"{salario_liq : .2f} + (-{custo_fixo : .2f}) + {redimento_mes :.2f}")
 
         with col2_pot.container(border=True):
-            st.markdown(f"**Pontencial Arrecadação Ano**:\n\n R$ {anual : .2f}")
+            st.markdown(f"""**Pontencial Arrecadação Ano**:\n\n R$ {anual : .2f}""",
+                        help = f"12 * ({salario_liq : .2f} + (-{custo_fixo : .2f})) + {redimento_ano :.2f}")
 
+        ## contanier meta e patrimonio juntos
         with st.container(border=True):
             col1_meta, col2_meta = st.columns(2)
             with col1_meta:
@@ -149,3 +215,4 @@ if file_upload:
             with col2_meta:
                 patrimonio_final = meta_estipulada + valor_inicio
                 st.markdown(f"Patrimônio Estimado pós meta:\n\n R$ {patrimonio_final : .2f}")
+# %%
