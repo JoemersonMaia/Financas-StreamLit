@@ -52,19 +52,19 @@ Todo o código está em um único script Python, com interface interativa criada
 
 **1. Tela inicial e upload do CSV**
 
-![Tela inicial com o campo de upload](docs/img/01-tela-inicial.png)
+![Tela inicial com o campo de upload](docs/img/Captura%20de%20tela%20de%202026-10-17%2017-13-27.png)
 
 **2. Seções liberadas após o upload**
 
-![Seções Dados Brutos, Instituições, Estatísticas Gerais e Metas](docs/img/02-secoes.png)
+![Seções Dados Brutos, Instituições, Estatísticas Gerais e Metas](docs/img/Captura%20de%20tela%20de%202026-10-17%2017-13-48.png)
 
 **3. Dados brutos e análise por instituição**
 
-![Dados brutos e tabela por instituição](docs/img/03-dados-instituicoes.png)
+![Dados brutos e tabela por instituição](docs/img/Captura%20de%20tela%20de%202026-10-17%2017-13-59.png)
 
 **4. Estatísticas gerais e configuração de metas**
 
-![Crescimento relativo e configuração de metas](docs/img/04-estatisticas-metas.png)
+![Crescimento relativo e configuração de metas](docs/img/Captura%20de%20tela%20de%202026-10-17%2017-14-40.png)
 
 > As capturas usam os dados fictícios do arquivo de modelo do repositório.
 
