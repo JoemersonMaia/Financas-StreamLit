@@ -1,6 +1,26 @@
+# %%
+import requests
 import streamlit as st
 import pandas as pd
 
+def get_selic():
+    url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados"
+
+    params = {
+        "formato": "json",
+        "dataInicial": "01/01/2020",
+        "dataFinal": "31/12/2025"
+    }
+
+    resp = requests.get(url, params=params, timeout=30)
+    resp.raise_for_status()
+
+    df = pd.DataFrame(resp.json())
+
+    df["data"] = pd.to_datetime(df["data"], dayfirst=True).dt.date
+    df["valor"] = pd.to_numeric(df["valor"])
+
+    return df
 
 ## funcao estatiticas do dado brutos ##
 def calc_general_stats(df):
@@ -150,19 +170,41 @@ if file_upload:
         valor_inicio = df_stats.loc[data_filtrada]["Valor"]
         col1.markdown(f"**Patrimonio no ínicio da Meta**: R$ {valor_inicio : .2f}")
 
+
+        selic_gov_df = get_selic()
+
+        filter_selic_date = selic_gov_df["data"] <= data_inicio_meta
+
+        selic_default = selic_gov_df.loc[filter_selic_date, "valor"].iloc[-1]
+
+        selic = st.number_input(
+            "Selic",
+            min_value=0.0,
+            value=float(selic_default),
+            format="%.2f"
+        )
+
+        selic_ano = selic / 100
+        selic_mes = (selic_ano + 1) ** (1/12) - 1
+
+        redimento_ano = valor_inicio * selic_ano
+        redimento_mes = valor_inicio * selic_mes
+                                                                                                                                                                                     
         ##coluna pontecial, mas resete de coluna
         col1_pot, col2_pot = st.columns(2)
 
         ##conta arrrencadacao mensal e anual
-        mensal = salario_liq - custo_fixo
-        anual = mensal * 12
+        mensal = salario_liq - custo_fixo + redimento_mes
+        anual = 2 * (salario_liq -custo_fixo) + redimento_ano
 
         ## contanier + Input do valor
         with col1_pot.container(border=True):
-            st.markdown(f"**Pontencial Arrecadação Mês**:\n\n R$ {mensal : .2f}")
+            st.markdown(f"""**Pontencial Arrecadação Mês**:\n\n R$ {mensal : .2f}""",
+                        help = f"{salario_liq : .2f} + (-{custo_fixo : .2f}) + {redimento_mes :.2f}")
 
         with col2_pot.container(border=True):
-            st.markdown(f"**Pontencial Arrecadação Ano**:\n\n R$ {anual : .2f}")
+            st.markdown(f"""**Pontencial Arrecadação Ano**:\n\n R$ {anual : .2f}""",
+                        help = f"12 * ({salario_liq : .2f} + (-{custo_fixo : .2f})) + {redimento_ano :.2f}")
 
         ## contanier meta e patrimonio juntos
         with st.container(border=True):
@@ -173,3 +215,4 @@ if file_upload:
             with col2_meta:
                 patrimonio_final = meta_estipulada + valor_inicio
                 st.markdown(f"Patrimônio Estimado pós meta:\n\n R$ {patrimonio_final : .2f}")
+# %%
