@@ -1,9 +1,13 @@
 # 💰 App Financeiro — Análise e Planejamento Patrimonial
 
-![Python](https://img.shields.io/badge/Python-3-3776AB?logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-app-FF4B4B?logo=streamlit&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-dados-150458?logo=pandas&logoColor=white)
-![API](https://img.shields.io/badge/API-Banco%20Central%20do%20Brasil-00529B)
+<p align="left">
+  <img src="https://img.shields.io/badge/PYTHON-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/PANDAS-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas" />
+  <img src="https://img.shields.io/badge/STREAMLIT-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit" />
+  <img src="https://img.shields.io/badge/REQUESTS-2C5BB4?style=for-the-badge" alt="Requests" />
+  <img src="https://img.shields.io/badge/GIT-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git" />
+  <img src="https://img.shields.io/badge/API%20BANCO%20CENTRAL-00529B?style=for-the-badge" alt="API do Banco Central do Brasil" />
+</p>
 
 Aplicação web desenvolvida em **Python** e **Streamlit** que transforma um simples arquivo CSV com saldos por instituição financeira em um painel de acompanhamento patrimonial: histórico, distribuição, estatísticas de evolução e planejamento de metas com base na taxa Selic.
 
