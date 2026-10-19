@@ -50,7 +50,7 @@ Todo o código está em um único script Python, com interface interativa criada
 
 | Item | Link |
 |------|------|
-| Aplicação publicada | [finance-jjo.streamlit.app](https://finance-jjo.streamlit.app/) |
+| Aplicação publicada | [finance-jjo.streamlit.app]([https://finance-jjo.streamlit.app/](https://joemersonmaia-financas-streamlit-main-sddapp.streamlit.app/)) |
 
 ### Capturas de tela
 
