@@ -342,3 +342,6 @@ Conceitos aplicados no código:
 - **Visualização de dados:** gráficos de linhas e de barras com Streamlit.
 - **Interfaces interativas:** `file_uploader`, `expander`, `tabs`, `columns`, `container`, `selectbox`, `date_input`, `number_input` e `column_config` para formatação de valores.
 - **Integração com API REST:** consumo de dados públicos em JSON com Requests, tratamento de erros HTTP e conversão para DataFrame.
+- ### Melhorias na documentação
+
+Revisão e atualização contínua da documentação para facilitar a instalação, utilização e compreensão das funcionalidades da aplicação.
